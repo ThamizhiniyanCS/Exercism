@@ -1,78 +1,40 @@
-#[macro_export]
-macro_rules! round_off_two_decimals {
-    ($val:expr) => {
-        ($val * 100.0).round() / 100.0
-    };
-}
+static EARTH_SECONDS: f64 = 31_557_600.0;
 
-#[macro_export]
-macro_rules! earth_age_calc {
-    ($val:expr) => {
-        $val as f64 / 31_557_600 as f64
+macro_rules! planet {
+    // https://doc.rust-lang.org/stable/rust-by-example/macros/designators.html
+    ($planet:ident, $orbital_period:expr) => {
+        pub struct $planet;
+
+        impl Planet for $planet {
+            fn orbital_period() -> f64 {
+                $orbital_period
+            }
+        }
     };
 }
 
 #[derive(Debug)]
-pub struct Duration {
-    seconds: u64,
-}
+pub struct Duration(f64);
 
 impl From<u64> for Duration {
     fn from(s: u64) -> Self {
-        Duration { seconds: s }
+        Duration((s as f64) / EARTH_SECONDS)
     }
 }
 
 pub trait Planet {
-    fn years_during(d: &Duration) -> f64;
+    fn orbital_period() -> f64;
+
+    fn years_during(d: &Duration) -> f64 {
+        d.0 / Self::orbital_period()
+    }
 }
 
-pub struct Mercury;
-pub struct Venus;
-pub struct Earth;
-pub struct Mars;
-pub struct Jupiter;
-pub struct Saturn;
-pub struct Uranus;
-pub struct Neptune;
-
-impl Planet for Mercury {
-    fn years_during(d: &Duration) -> f64 {
-        round_off_two_decimals!(earth_age_calc!(d.seconds) / 0.2408467)
-    }
-}
-impl Planet for Venus {
-    fn years_during(d: &Duration) -> f64 {
-        round_off_two_decimals!(earth_age_calc!(d.seconds) / 0.61519726)
-    }
-}
-impl Planet for Earth {
-    fn years_during(d: &Duration) -> f64 {
-        round_off_two_decimals!(earth_age_calc!(d.seconds) / 1.0)
-    }
-}
-impl Planet for Mars {
-    fn years_during(d: &Duration) -> f64 {
-        round_off_two_decimals!(earth_age_calc!(d.seconds) / 1.8808158)
-    }
-}
-impl Planet for Jupiter {
-    fn years_during(d: &Duration) -> f64 {
-        round_off_two_decimals!(earth_age_calc!(d.seconds) / 11.862615)
-    }
-}
-impl Planet for Saturn {
-    fn years_during(d: &Duration) -> f64 {
-        round_off_two_decimals!(earth_age_calc!(d.seconds) / 29.447498)
-    }
-}
-impl Planet for Uranus {
-    fn years_during(d: &Duration) -> f64 {
-        round_off_two_decimals!(earth_age_calc!(d.seconds) / 84.016846)
-    }
-}
-impl Planet for Neptune {
-    fn years_during(d: &Duration) -> f64 {
-        round_off_two_decimals!(earth_age_calc!(d.seconds) / 164.79132)
-    }
-}
+planet!(Mercury, 0.2408467);
+planet!(Venus, 0.61519726);
+planet!(Earth, 1.0);
+planet!(Mars, 1.8808158);
+planet!(Jupiter, 11.862615);
+planet!(Saturn, 29.447498);
+planet!(Uranus, 84.016846);
+planet!(Neptune, 164.79132);
