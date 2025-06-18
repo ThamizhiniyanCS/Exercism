@@ -1,4 +1,4 @@
-static EARTH_SECONDS: f64 = 31_557_600.0;
+const EARTH_SECONDS: f64 = 31_557_600.0;
 
 macro_rules! planet {
     // https://doc.rust-lang.org/stable/rust-by-example/macros/designators.html
