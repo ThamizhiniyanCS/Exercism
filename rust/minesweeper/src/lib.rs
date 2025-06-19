@@ -1,66 +1,34 @@
+#[rustfmt::skip]
+static DIRECTIONS: &[(i32, i32)] = &[
+    (-1, -1), (-1, 0), (-1, 1),
+    (0, -1),           (0, 1),
+    (1, -1),  (1, 0),  (1, 1),
+];
+
 pub fn annotate(minefield: &[&str]) -> Vec<String> {
-    if minefield.is_empty() {
-        return vec![];
-    }
+    let columns: i32 = minefield.len() as i32;
+    let rows: i32 = minefield[0].len() as i32;
 
-    let mut result: Vec<Vec<String>> =
-        vec![vec![" ".to_string(); minefield[0].len()]; minefield.len()];
-
-    for (i, row) in minefield.iter().enumerate() {
-        for (j, column) in row.as_bytes().iter().enumerate() {
-            if *column == 42u8 {
-                result[i][j] = "*".to_string();
-                continue;
-            }
-
-            let mut count: u32 = 0;
-
-            // up
-            if i > 0 && &minefield[i - 1][j..j + 1] == "*" {
-                count += 1;
-            }
-            // down
-            if i + 1 < minefield.len() && &minefield[i + 1][j..j + 1] == "*" {
-                count += 1;
-            }
-            // left
-            if j > 0 && &minefield[i][j - 1..j] == "*" {
-                count += 1;
-            }
-            // right
-            if j + 1 < minefield[0].len() && &minefield[i][j + 1..j + 2] == "*" {
-                count += 1;
-            }
-            // up left
-            if i > 0 && j > 0 && &minefield[i - 1][j - 1..j] == "*" {
-                count += 1;
-            }
-            // up right
-            if i > 0 && j + 1 < minefield[0].len() && &minefield[i - 1][j + 1..j + 2] == "*" {
-                count += 1;
-            }
-            // down left
-            if i + 1 < minefield.len() && j > 0 && &minefield[i + 1][j - 1..j] == "*" {
-                count += 1;
-            }
-            // down right
-            if i + 1 < minefield.len()
-                && j + 1 < minefield[0].len()
-                && &minefield[i + 1][j + 1..j + 2] == "*"
-            {
-                count += 1;
-            }
-
-            if count == 0 {
-                result[i][j] = " ".to_string();
-            } else {
-                result[i][j] = count.to_string();
-            }
-        }
-    }
-
-    result
-        .into_iter()
-        .map(|row| row.into_iter().collect::<String>())
+    (0..columns)
+        .map(|i| {
+            (0..rows)
+                .map(|j| {
+                    if minefield[i as usize].as_bytes()[j as usize] == b'*' {
+                        '*'
+                    } else {
+                        match DIRECTIONS
+                            .iter()
+                            .map(|&(dx, dy)| (i + dx, j + dy))
+                            .filter(|&(x, y)| (0 <= x && x < columns) && (0 <= y && y < rows))
+                            .filter(|&(x, y)| minefield[x as usize].as_bytes()[y as usize] == b'*')
+                            .count()
+                        {
+                            0 => ' ',
+                            n => (n as u8 + b'0') as char,
+                        }
+                    }
+                })
+                .collect::<String>()
+        })
         .collect::<Vec<String>>()
 }
