@@ -4,22 +4,20 @@ static STUDENTS: [&str; 12] = [
 ];
 
 pub fn plants(diagram: &str, student: &str) -> Vec<&'static str> {
-    let diagram: Vec<String> = diagram.lines().map(String::from).collect::<Vec<String>>();
-    let student_number = STUDENTS.iter().position(|&s| s == student).unwrap() + 1;
-    let student_cups_positions = [
-        (0, student_number * 2 - 2),
-        (0, student_number * 2 - 1),
-        (1, student_number * 2 - 2),
-        (1, student_number * 2 - 1),
-    ];
+    let cup_index = STUDENTS.iter().position(|&s| s == student).unwrap() * 2;
 
-    student_cups_positions
-        .map(|(x, y)| match &diagram[x][y..y + 1] {
-            "G" => "grass",
-            "C" => "clover",
-            "R" => "radishes",
-            "V" => "violets",
-            _ => "",
+    diagram
+        .lines()
+        .flat_map(|line| {
+            line[cup_index..=cup_index + 1]
+                .chars()
+                .map(|cup| match cup {
+                    'G' => "grass",
+                    'C' => "clover",
+                    'R' => "radishes",
+                    'V' => "violets",
+                    _ => "",
+                })
         })
-        .to_vec()
+        .collect()
 }
